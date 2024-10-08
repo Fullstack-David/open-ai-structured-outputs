@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenAI Content Generator</title>
+    <link rel="stylesheet" href="../style/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <style>
+      :root {
+        --primary-color: #6200ea;
+        --secondary-color: #00c853;
+        --background-color: #f0f4f8;
+        --text-color: #37474f;
+        --card-background: #ffffff;
+        --border-color: #b39ddb;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 40px;
+        background-color: var(--card-background);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        border: 2px solid var(--border-color);
+      }
+
+      h1 {
+        text-align: center;
+        color: var(--primary-color);
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      form {
+        background-color: #f8f9fa;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--primary-color);
+      }
+
+      input[type="text"],
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d9e6;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
+
+      input[type="text"]:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      button {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 14px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      button:hover {
+        background-color: #00a844;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      #result {
+        margin-top: 30px;
+        background-color: #f8f9fa;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid var(--primary-color);
+      }
+
+      #result h2 {
+        color: var(--primary-color);
+        margin-top: 0;
+        font-size: 1.8em;
+        font-weight: 600;
+      }
+
+      #result p {
+        font-size: 1.1em;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 20px;
+          margin: 20px;
+        }
+
+        form {
+          padding: 20px;
+        }
+      }
+    </style>
+    <div class="container">
+      <h1>OpenAI Content Generator</h1>
+      <form id="contentForm">
+        <div class="form-group">
+          <label for="topic">Topic:</label>
+          <input type="text" id="topic" required />
+        </div>
+
+        <div class="form-group">
+          <label for="audience">Audience:</label>
+          <select id="audience" required>
+            <option value="student">Student</option>
+            <option value="professional">Professional</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="tone">Tone:</label>
+          <select id="tone" required>
+            <option value="formal">Formal</option>
+            <option value="casual">Casual</option>
+            <option value="humorous">Humorous</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="length">Length:</label>
+          <select id="length" required>
+            <option value="short">Short</option>
+            <option value="medium">Medium</option>
+            <option value="long">Long</option>
+          </select>
+        </div>
+
+        <button type="submit">Generate Content</button>
+      </form>
+
+      <div id="result"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("contentForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = {
+            topic: document.getElementById("topic").value,
+            audience: document.getElementById("audience").value,
+            tone: document.getElementById("tone").value,
+            length: document.getElementById("length").value,
+          };
+
+          try {
+            const response = await fetch("/generate-content", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = `
+                    <h2>${data.generatedContent.title}</h2>
+                    <p>${data.generatedContent.content}</p>
+                `;
+          } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("result").textContent =
+              "An error occurred while generating content.";
+          }
+        });
+    </script>
+  </body>
+</html>

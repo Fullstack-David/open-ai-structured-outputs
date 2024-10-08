@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import { z } from "zod";
 import OpenAI from "openai";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 dotenv.config();
 const openai = new OpenAI({
@@ -11,9 +14,15 @@ const openai = new OpenAI({
 const app = express();
 app.use(express.json());
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
+
 const requestSchema = z.object({
   topic: z.string(),
-  audience: z.string(),
+  audience: z.enum(["student", "professional", "general"]),
   tone: z.enum(["formal", "casual", "humorous"]),
   length: z.enum(["short", "medium", "long"]),
 });
@@ -22,33 +31,9 @@ const responseSchema = z.object({
   content: z.string(),
 });
 
+// Update the root route to serve the HTML file
 app.get("/", (req, res) => {
-  const styles = `
-      <style>
-          body {
-            background-color: black;
-            color: white;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh;
-            margin: 0;
-            
-          
-          }
-          h1 { text-align: center;
-            border: 1px solid white;
-            height: 10vh;
-            width: 50%;
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            border-radius: 10px;
-          }
-
-      </style>
-  `;
-  res.status(200).send(`${styles} <h1>OpenAI integration</h1>`);
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 app.post("/generate-content", async (req, res) => {
